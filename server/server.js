@@ -1,3 +1,5 @@
+const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
@@ -11,21 +13,24 @@ const Contest = require('./models/Contest');
 const Question = require('./models/Question');
 const User = require('./models/User');
 
-const express = require('express');
 const app = express();
 
+// Middleware
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/contests', contestRoutes);
 app.use('/api/judge', judgeRoutes);
 app.use('/api/submissions', submissionRoutes);
 
+// Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Contest Platform API Server is running' });
 });
 
+// Auto-seed Admin & Contests AFTER mongoose connection is established
 const seedDatabase = async () => {
   try {
     const adminEmail = (process.env.ADMIN_ID || 'mystery0419').toLowerCase().trim();
@@ -47,7 +52,6 @@ const seedDatabase = async () => {
 
     console.log('🌱 Seeding CS Fundamentals Speed Test (20 MCQs x 2 Marks)...');
 
-    // 20 MCQs Data
     const mcqQuestions = [
       // 1-5: OOPs
       { title: 'OOPs: Data Encapsulation', description: 'What is the process of wrapping data and methods into a single unit called?', options: ['Polymorphism', 'Encapsulation', 'Inheritance', 'Abstraction'], correctOption: 'B' },
