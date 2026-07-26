@@ -475,6 +475,16 @@ export default function TakeContest() {
           {currentQ.type === 'coding' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
               
+              {/* PROBLEM TITLE & DESCRIPTION CARD */}
+              <div className="card" style={{ padding: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.8rem' }}>
+                  <span className="badge badge-purple">Q{currentQIndex + 1} • {currentQ.marks} MARKS</span>
+                  <span className="badge badge-green">CODING PROBLEM</span>
+                </div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.6rem' }}>{currentQ.title}</h3>
+                <p style={{ color: 'var(--text)', fontSize: '0.95rem', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{currentQ.description}</p>
+              </div>
+
               {/* PROBLEM CONSTRAINTS & SAMPLES BANNER */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                 <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.85rem' }}>
