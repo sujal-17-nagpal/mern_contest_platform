@@ -1,6 +1,4 @@
-const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
@@ -13,24 +11,21 @@ const Contest = require('./models/Contest');
 const Question = require('./models/Question');
 const User = require('./models/User');
 
+const express = require('express');
 const app = express();
 
-// Middleware
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/contests', contestRoutes);
 app.use('/api/judge', judgeRoutes);
 app.use('/api/submissions', submissionRoutes);
 
-// Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Contest Platform API Server is running' });
 });
 
-// Auto-seed Admin & Contests AFTER mongoose connection is established
 const seedDatabase = async () => {
   try {
     const adminEmail = (process.env.ADMIN_ID || 'mystery0419').toLowerCase().trim();
@@ -50,72 +45,79 @@ const seedDatabase = async () => {
       await admin.save();
     }
 
-    console.log('🔄 Re-seeding "Complete OA 1" with 3 QUESTIONS (Q1: 10M, Q2: 5M, Q3: 5M)...');
+    console.log('🌱 Seeding CS Fundamentals Speed Test (20 MCQs x 2 Marks)...');
 
-    await Contest.deleteMany({ title: 'Complete OA 1' });
+    // 20 MCQs Data
+    const mcqQuestions = [
+      // 1-5: OOPs
+      { title: 'OOPs: Data Encapsulation', description: 'What is the process of wrapping data and methods into a single unit called?', options: ['Polymorphism', 'Encapsulation', 'Inheritance', 'Abstraction'], correctOption: 'B' },
+      { title: 'OOPs: Method Overriding', description: 'Which feature of OOP allows a subclass to provide a specific implementation of a method defined in its parent class?', options: ['Method Overloading', 'Method Overriding', 'Encapsulation', 'Abstraction'], correctOption: 'B' },
+      { title: 'OOPs: Default Constructor', description: 'Which constructor is automatically invoked when an object is instantiated without any arguments?', options: ['Parameterized Constructor', 'Default Constructor', 'Copy Constructor', 'Virtual Constructor'], correctOption: 'B' },
+      { title: 'OOPs: Keyword Reference', description: 'What does the `this` pointer/keyword refer to inside an instance method?', options: ['Current class', 'Parent class', 'Current object instance', 'Global scope'], correctOption: 'C' },
+      { title: 'OOPs: Polymorphism Concept', description: 'Which OOP concept allows objects of different derived classes to be treated uniformly through a common base class?', options: ['Inheritance', 'Polymorphism', 'Encapsulation', 'Data Hiding'], correctOption: 'B' },
 
-    // 1. Question 1 (Bug Hunt - 10 Marks)
-    const oa1Q1 = new Question({
-      title: 'Two-Pointer Pair Sum Bug Hunt',
-      description: 'The function below is intended to check if there exists a pair in a sorted integer array arr that sums up to target K using the two-pointer technique.\n\nNote to Candidate: There can be 0, 1, or multiple bugs in the given code snippet. Identify all bugs present and provide the suitable fixe for each one of them',
-      type: 'bug_hunt',
-      marks: 10,
-      codeSnippet: `bool hasPairWithSum(vector<int>& arr, int K) {\n    int left = 0;\n    int right = arr.size() - 1;\n    \n    while (left < right) {\n        int currentSum = arr[left] + arr[right];\n        \n        if (currentSum == K) {\n            return true;\n        } else if (currentSum > K) {\n            left++;\n        } else {\n            right--;\n        }\n    }\n    return false;\n}`,
-      expectedBug: 'Left incremented when sum > K, and Right decremented when sum < K',
-      expectedFix: 'Swap left++ with right-- and right-- with left++'
-    });
-    await oa1Q1.save();
+      // 6-10: Computer Networks
+      { title: 'CN: OSI Network Layer', description: 'Which layer of the OSI model is responsible for routing packets across different networks?', options: ['Data Link Layer', 'Network Layer', 'Transport Layer', 'Application Layer'], correctOption: 'B' },
+      { title: 'CN: Default HTTP Port', description: 'What is the standard default port number used by the HTTP protocol?', options: ['21', '443', '80', '8080'], correctOption: 'C' },
+      { title: 'CN: Reliable Transport Protocol', description: 'Which protocol operates at the Transport layer and provides reliable, connection-oriented data transfer?', options: ['UDP', 'IP', 'TCP', 'ICMP'], correctOption: 'C' },
+      { title: 'CN: IPv4 Address Size', description: 'What is the total length of an IPv4 address in bits?', options: ['16 bits', '32 bits', '64 bits', '128 bits'], correctOption: 'B' },
+      { title: 'CN: Domain Name Resolution', description: 'Which protocol translates human-readable domain names (e.g. google.com) into IP addresses?', options: ['DHCP', 'ARP', 'DNS', 'FTP'], correctOption: 'C' },
 
-    // 2. Question 2 (MCQ - 5 Marks)
-    const oa1Q2 = new Question({
-      title: 'Combined Prefix & Suffix Sum Unique Values',
-      description: 'Given an array A of size N. Let pref[i] denote the prefix sum of elements from index 0 to i inclusive, and suff[i] denote the suffix sum of elements from index i to N-1 inclusive. For all valid indices 0 <= i < N, what is the total number of unique values that (pref[i] + suff[i]) can evaluate to?',
-      type: 'mcq',
-      marks: 5,
-      options: ['1', 'N', 'Need the array to determine', 'Number of unique elements'],
-      correctOption: 'D'
-    });
-    await oa1Q2.save();
+      // 11-15: Operating Systems
+      { title: 'OS: Program in Execution', description: 'What is a program in execution state called in an Operating System?', options: ['Thread', 'Process', 'Task Manager', 'Interrupt'], correctOption: 'B' },
+      { title: 'OS: Deadlock Necessary Conditions', description: 'Under what condition will a deadlock occur when Mutual Exclusion, Hold & Wait, No Preemption, and Circular Wait are involved?', options: ['All four conditions hold simultaneously', 'Any two conditions hold', 'Only Circular Wait holds', 'Only Mutual Exclusion holds'], correctOption: 'A' },
+      { title: 'OS: CPU Scheduling SJF', description: 'Which CPU scheduling algorithm selects the process with the shortest next CPU burst time?', options: ['FCFS', 'Shortest Job First (SJF)', 'Round Robin', 'Priority Scheduling'], correctOption: 'B' },
+      { title: 'OS: Memory Paging', description: 'What memory management scheme eliminates the requirement of contiguous physical memory allocation?', options: ['Paging', 'Swapping', 'Overlays', 'Segmentation Fault'], correctOption: 'A' },
+      { title: 'OS: Kernel Role', description: 'Which central component of an OS directly manages CPU, memory, and hardware device interactions?', options: ['Shell', 'Kernel', 'GUI', 'Compiler'], correctOption: 'B' },
 
-    // 3. Question 3 (Coding - 5 Marks)
-    const oa1Q3 = new Question({
-      title: 'Count Alternating Subarrays',
-      description: 'Given a binary array arr containing only 0s and 1s. A contiguous subarray is called alternating if no two adjacent elements in the subarray are equal.\n\nWrite a function long long countAlternatingSubarrays(vector<int>& arr) to return the total count of contiguous alternating subarrays.',
-      type: 'coding',
-      marks: 5,
-      inputFormat: 'Line 1: N (Size of binary array)\nLine 2: N space-separated integers (0 or 1)',
-      outputFormat: 'Single integer representing the total count of alternating subarrays',
-      constraints: '1 <= N <= 10^5, arr[i] in {0, 1}',
-      starterCode: `long long countAlternatingSubarrays(vector<int>& arr) {\n    // Write your code here\n    \n}`,
-      driverCode: `int main() {\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    int n;\n    if (!(cin >> n)) return 0;\n    vector<int> arr(n);\n    for(int i = 0; i < n; i++) cin >> arr[i];\n    cout << countAlternatingSubarrays(arr);\n    return 0;\n}`,
-      testCases: [
-        { input: '4\n0 1 1 1', expectedOutput: '5', isHidden: false },
-        { input: '3\n1 0 1', expectedOutput: '6', isHidden: false },
-        { input: '5\n0 1 0 1 0', expectedOutput: '15', isHidden: true }
-      ]
-    });
-    await oa1Q3.save();
+      // 16-20: DBMS
+      { title: 'DBMS: Primary Key Purpose', description: 'What does a PRIMARY KEY constraint uniquely identify in a relational database table?', options: ['Each column', 'Each row/record', 'Each table', 'Each database'], correctOption: 'B' },
+      { title: 'DBMS: ACID Atomicity', description: 'Which ACID property guarantees that all operations inside a transaction complete successfully or none take effect?', options: ['Atomicity', 'Consistency', 'Isolation', 'Durability'], correctOption: 'A' },
+      { title: 'DBMS: HAVING Clause', description: 'Which SQL clause is specifically used to filter aggregated results produced by a GROUP BY clause?', options: ['WHERE', 'HAVING', 'ORDER BY', 'DISTINCT'], correctOption: 'B' },
+      { title: 'DBMS: One-to-Many Relation', description: 'What relationship exists when a single record in Table A is associated with multiple records in Table B?', options: ['One-to-One', 'One-to-Many', 'Many-to-Many', 'Self-Referential'], correctOption: 'B' },
+      { title: 'DBMS: DROP Table Command', description: 'Which SQL DDL command permanently removes a table structure along with all its records from the database?', options: ['DELETE', 'TRUNCATE', 'DROP', 'REMOVE'], correctOption: 'C' }
+    ];
 
-    // 4. Create fresh "Complete OA 1" with ALL 3 Question IDs
-    const newContest = new Contest({
-      title: 'Complete OA 1',
-      description: 'Official Online Assessment containing two-pointer bug hunt, prefix/suffix logic MCQ, and alternating subarrays coding challenge.',
-      durationMinutes: 45,
+    const savedQIds = [];
+    for (const q of mcqQuestions) {
+      let existingQ = await Question.findOne({ title: q.title });
+      if (!existingQ) {
+        existingQ = new Question({
+          title: q.title,
+          description: q.description,
+          type: 'mcq',
+          marks: 2,
+          options: q.options,
+          correctOption: q.correctOption
+        });
+        await existingQ.save();
+      } else {
+        existingQ.marks = 2;
+        await existingQ.save();
+      }
+      savedQIds.push(existingQ._id);
+    }
+
+    await Contest.deleteMany({ title: 'CS Fundamentals Speed Test' });
+
+    const csContest = new Contest({
+      title: 'CS Fundamentals Speed Test',
+      description: 'Comprehensive 20-question speed quiz covering Core CS Concepts: 5 OOPs, 5 Computer Networks, 5 Operating Systems, and 5 DBMS (2 Marks Each).',
+      durationMinutes: 30,
       startTime: new Date(),
       endTime: new Date(Date.now() + 30 * 24 * 3600 * 1000),
-      questions: [oa1Q1._id, oa1Q2._id, oa1Q3._id],
+      questions: savedQIds,
       isPublished: true,
       createdBy: admin._id
     });
-    await newContest.save();
+    await csContest.save();
 
-    console.log('🎉 "Complete OA 1" successfully published with 3 QUESTIONS (Q1: 10M, Q2: 5M, Q3: 5M)!');
+    console.log('🎉 "CS Fundamentals Speed Test" (20 MCQs x 2 Marks = 40 Marks) published successfully!');
   } catch (err) {
-    console.error('❌ Error during database seeding:', err.message);
+    console.error('Error seeding database:', err.message);
   }
 };
 
-// Connect Database & Start Server
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/contest_platform';
 
@@ -129,7 +131,6 @@ mongoose.connect(MONGODB_URI)
   })
   .catch((err) => {
     console.error('❌ MongoDB Connection Error:', err.message);
-    console.log('💡 Note: Server running in fallback mode. Ensure MONGODB_URI is configured in .env');
     app.listen(PORT, () => {
       console.log(`🚀 Backend listening on port ${PORT}`);
     });
