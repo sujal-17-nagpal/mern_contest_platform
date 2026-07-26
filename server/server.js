@@ -50,25 +50,31 @@ const seedDatabase = async () => {
       await admin.save();
     }
 
-    const updatedDesc = 'The function below is intended to check if there exists a pair in a sorted integer array arr that sums up to target K using the two-pointer technique.\n\nNote to Candidate: There can be 0, 1, or multiple bugs in the given code snippet. Identify the bug(s) and explain the fix for it.';
+    const updatedDesc = 'The function below is intended to check if there exists a pair in a sorted integer array arr that sums up to target K using the two-pointer technique.\n\nNote to Candidate: There can be 0, 1, or multiple bugs in the given code snippet. Identify all bugs present and provide the suitable fixe for each one of them';
 
-    // 1. Question 1 for Complete OA 1 (Bug Hunt - 10 Marks)
-    await Question.updateMany(
-      { $or: [{ title: /Two-Pointer/i }, { type: 'bug_hunt' }] },
-      { $set: { description: updatedDesc, marks: 10 } }
-    );
+    // 1. Ensure Question 1 (Bug Hunt - 10 Marks)
+    let q1 = await Question.findOne({ title: /Two-Pointer/i });
+    if (!q1) {
+      q1 = new Question({
+        title: 'Two-Pointer Pair Sum Bug Hunt',
+        description: updatedDesc,
+        type: 'bug_hunt',
+        marks: 10,
+        codeSnippet: `bool hasPairWithSum(vector<int>& arr, int K) {\n    int left = 0;\n    int right = arr.size() - 1;\n    \n    while (left < right) {\n        int currentSum = arr[left] + arr[right];\n        \n        if (currentSum == K) {\n            return true;\n        } else if (currentSum > K) {\n            left++;\n        } else {\n            right--;\n        }\n    }\n    return false;\n}`,
+        expectedBug: 'Left incremented when sum > K, and Right decremented when sum < K',
+        expectedFix: 'Swap left++ with right-- and right-- with left++'
+      });
+      await q1.save();
+    } else {
+      q1.description = updatedDesc;
+      q1.marks = 10;
+      await q1.save();
+    }
 
-    let oa1Q1 = await Question.findOne({ title: /Two-Pointer/i });
-
-    // 2. Question 2 for Complete OA 1 (MCQ - 5 Marks)
-    await Question.updateMany(
-      { title: /Combined Prefix & Suffix/i },
-      { $set: { marks: 5 } }
-    );
-
-    let oa1Q2 = await Question.findOne({ title: /Combined Prefix & Suffix/i });
-    if (!oa1Q2) {
-      oa1Q2 = new Question({
+    // 2. Ensure Question 2 (MCQ - 5 Marks)
+    let q2 = await Question.findOne({ title: /Combined Prefix/i });
+    if (!q2) {
+      q2 = new Question({
         title: 'Combined Prefix & Suffix Sum Unique Values',
         description: 'Given an array A of size N. Let pref[i] denote the prefix sum of elements from index 0 to i inclusive, and suff[i] denote the suffix sum of elements from index i to N-1 inclusive. For all valid indices 0 <= i < N, what is the total number of unique values that (pref[i] + suff[i]) can evaluate to?',
         type: 'mcq',
@@ -76,30 +82,20 @@ const seedDatabase = async () => {
         options: ['1', 'N', 'Need the array to determine', 'Number of unique elements'],
         correctOption: 'D'
       });
-      await oa1Q2.save();
-    }
-
-    // 3. Update Contest "Complete OA 1" with BOTH Questions
-    let oa1Contest = await Contest.findOne({ title: 'Complete OA 1' });
-    if (!oa1Contest) {
-      oa1Contest = new Contest({
-        title: 'Complete OA 1',
-        description: 'Official Online Assessment containing two-pointer bug hunt and prefix/suffix array logic challenges.',
-        durationMinutes: 45,
-        startTime: new Date(),
-        endTime: new Date(Date.now() + 30 * 24 * 3600 * 1000),
-        questions: [oa1Q1._id, oa1Q2._id],
-        isPublished: true,
-        createdBy: admin._id
-      });
-      await oa1Contest.save();
+      await q2.save();
     } else {
-      oa1Contest.questions = [oa1Q1._id, oa1Q2._id];
-      oa1Contest.isPublished = true;
-      await oa1Contest.save();
+      q2.marks = 5;
+      await q2.save();
     }
 
-    console.log('🎉 "Complete OA 1" updated with Q1 (10 Marks) & Q2 (5 Marks)!');
+    // 3. Force update "Complete OA 1" with BOTH Question IDs directly in MongoDB Atlas
+    await Contest.updateOne(
+      { title: 'Complete OA 1' },
+      { $set: { questions: [q1._id, q2._id], isPublished: true } },
+      { upsert: true }
+    );
+
+    console.log('🎉 "Complete OA 1" successfully linked to Q1 (10 Marks) & Q2 (5 Marks)!');
   } catch (err) {
     console.error('❌ Error during database seeding:', err.message);
   }
