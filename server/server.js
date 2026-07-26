@@ -59,20 +59,13 @@ const seedDatabase = async () => {
     );
 
     let oa1Q1 = await Question.findOne({ title: /Two-Pointer/i });
-    if (!oa1Q1) {
-      oa1Q1 = new Question({
-        title: 'Two-Pointer Pair Sum Bug Hunt',
-        description: updatedDesc,
-        type: 'bug_hunt',
-        marks: 10,
-        codeSnippet: `bool hasPairWithSum(vector<int>& arr, int K) {\n    int left = 0;\n    int right = arr.size() - 1;\n    \n    while (left < right) {\n        int currentSum = arr[left] + arr[right];\n        \n        if (currentSum == K) {\n            return true;\n        } else if (currentSum > K) {\n            left++;\n        } else {\n            right--;\n        }\n    }\n    return false;\n}`,
-        expectedBug: 'Left incremented when sum > K, and Right decremented when sum < K',
-        expectedFix: 'Swap left++ with right-- and right-- with left++'
-      });
-      await oa1Q1.save();
-    }
 
     // 2. Question 2 for Complete OA 1 (MCQ - 5 Marks)
+    await Question.updateMany(
+      { title: /Combined Prefix & Suffix/i },
+      { $set: { marks: 5 } }
+    );
+
     let oa1Q2 = await Question.findOne({ title: /Combined Prefix & Suffix/i });
     if (!oa1Q2) {
       oa1Q2 = new Question({
@@ -83,9 +76,6 @@ const seedDatabase = async () => {
         options: ['1', 'N', 'Need the array to determine', 'Number of unique elements'],
         correctOption: 'D'
       });
-      await oa1Q2.save();
-    } else {
-      oa1Q2.marks = 5;
       await oa1Q2.save();
     }
 
