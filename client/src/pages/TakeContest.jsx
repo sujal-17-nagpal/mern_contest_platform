@@ -462,7 +462,7 @@ export default function TakeContest() {
                 <textarea
                   className="input-field"
                   rows={6}
-                  placeholder="Explain the bug and provide the corrected code snippet..."
+                  placeholder=""
                   value={currentAns.bugFix || ''}
                   onChange={(e) => updateAnswer(currentQ._id, { bugFix: e.target.value })}
                   style={{ fontFamily: "'Fira Code', monospace", fontSize: '0.88rem' }}
