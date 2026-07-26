@@ -48,29 +48,27 @@ const seedDatabase = async () => {
         role: 'admin'
       });
       await admin.save();
-      console.log(`👑 Master Admin Account Seeded: ${adminEmail}`);
-    } else {
-      admin.role = 'admin';
-      admin.password = passwordHash;
-      await admin.save();
     }
 
-    // 1. SEED / UPDATE "Complete OA 1" Question 1
-    let oa1Q1 = await Question.findOne({ title: 'Two-Pointer Pair Sum Bug Hunt' });
+    const updatedDesc = 'The function below is intended to check if there exists a pair in a sorted integer array arr that sums up to target K using the two-pointer technique.\n\nNote to Candidate: There can be 0, 1, or multiple bugs in the given code snippet. Identify the bug(s) and explain the fix for it.';
+
+    // Force update all matching Bug Hunt questions in MongoDB Atlas
+    await Question.updateMany(
+      { $or: [{ title: /Two-Pointer/i }, { type: 'bug_hunt' }] },
+      { $set: { description: updatedDesc, marks: 10 } }
+    );
+
+    let oa1Q1 = await Question.findOne({ title: /Two-Pointer/i });
     if (!oa1Q1) {
       oa1Q1 = new Question({
         title: 'Two-Pointer Pair Sum Bug Hunt',
-        description: 'The function below is intended to check if there exists a pair in a sorted integer array arr that sums up to target K using the two-pointer technique.\n\nNote to Candidate: There can be 0, 1, or multiple bugs in the given code snippet. Identify the bug(s) and explain the fix for it.',
+        description: updatedDesc,
         type: 'bug_hunt',
         marks: 10,
         codeSnippet: `bool hasPairWithSum(vector<int>& arr, int K) {\n    int left = 0;\n    int right = arr.size() - 1;\n    \n    while (left < right) {\n        int currentSum = arr[left] + arr[right];\n        \n        if (currentSum == K) {\n            return true;\n        } else if (currentSum > K) {\n            left++;\n        } else {\n            right--;\n        }\n    }\n    return false;\n}`,
         expectedBug: 'Left incremented when sum > K, and Right decremented when sum < K',
         expectedFix: 'Swap left++ with right-- and right-- with left++'
       });
-      await oa1Q1.save();
-    } else {
-      oa1Q1.description = 'The function below is intended to check if there exists a pair in a sorted integer array arr that sums up to target K using the two-pointer technique.\n\nNote to Candidate: There can be 0, 1, or multiple bugs in the given code snippet. Identify the bug(s) and explain the fix for it.';
-      oa1Q1.marks = 10;
       await oa1Q1.save();
     }
 
@@ -87,14 +85,13 @@ const seedDatabase = async () => {
         createdBy: admin._id
       });
       await oa1Contest.save();
-      console.log('🚀 Created & Published "Complete OA 1"');
     } else {
       oa1Contest.questions = [oa1Q1._id];
       oa1Contest.isPublished = true;
       await oa1Contest.save();
-      console.log('🚀 Updated & Published "Complete OA 1"');
     }
 
+    console.log('✅ MongoDB Atlas Question 1 description updated successfully!');
   } catch (err) {
     console.error('❌ Error during database seeding:', err.message);
   }
