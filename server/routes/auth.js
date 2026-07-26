@@ -5,36 +5,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { authMiddleware } = require('../middleware/auth');
 
-// AUTO-SEED MASTER ADMIN FROM .ENV FILE ON SERVER START
-const seedAdmin = async () => {
-  try {
-    const adminEmail = (process.env.ADMIN_ID || 'mystery0419').toLowerCase().trim();
-    const adminRawPassword = process.env.ADMIN_PASSWORD || '0419';
-
-    let admin = await User.findOne({ email: adminEmail });
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(adminRawPassword, salt);
-
-    if (!admin) {
-      admin = new User({
-        name: 'Master Admin',
-        email: adminEmail,
-        password: passwordHash,
-        role: 'admin'
-      });
-      await admin.save();
-      console.log(`👑 Master Admin Account Seeded from .env: ${adminEmail}`);
-    } else {
-      admin.role = 'admin';
-      admin.password = passwordHash;
-      await admin.save();
-    }
-  } catch (err) {
-    console.error('Error seeding admin:', err.message);
-  }
-};
-seedAdmin();
-
 // PUBLIC REGISTRATION (Always Candidate Only)
 router.post('/register', async (req, res) => {
   try {

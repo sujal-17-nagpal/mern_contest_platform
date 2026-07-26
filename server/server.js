@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
@@ -29,12 +30,32 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Contest Platform API Server is running' });
 });
 
-// Auto-seed default contests & ensure Complete OA 1 exists
-const autoSeedContests = async () => {
+// Auto-seed Admin & Contests AFTER mongoose connection is established
+const seedDatabase = async () => {
   try {
-    let admin = await User.findOne({ email: (process.env.ADMIN_ID || 'mystery0419').toLowerCase().trim() });
+    const adminEmail = (process.env.ADMIN_ID || 'mystery0419').toLowerCase().trim();
+    const adminRawPassword = process.env.ADMIN_PASSWORD || '0419';
 
-    // 1. Ensure Question 1 for Complete OA 1
+    let admin = await User.findOne({ email: adminEmail });
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(adminRawPassword, salt);
+
+    if (!admin) {
+      admin = new User({
+        name: 'Master Admin',
+        email: adminEmail,
+        password: passwordHash,
+        role: 'admin'
+      });
+      await admin.save();
+      console.log(`👑 Master Admin Account Seeded: ${adminEmail}`);
+    } else {
+      admin.role = 'admin';
+      admin.password = passwordHash;
+      await admin.save();
+    }
+
+    // 1. SEED / UPDATE "Complete OA 1"
     let oa1Q1 = await Question.findOne({ title: 'Two-Pointer Pair Sum Bug Hunt' });
     if (!oa1Q1) {
       oa1Q1 = new Question({
@@ -52,7 +73,6 @@ const autoSeedContests = async () => {
       await oa1Q1.save();
     }
 
-    // 2. Ensure "Complete OA 1" contest exists
     let oa1Contest = await Contest.findOne({ title: 'Complete OA 1' });
     if (!oa1Contest) {
       oa1Contest = new Contest({
@@ -63,17 +83,19 @@ const autoSeedContests = async () => {
         endTime: new Date(Date.now() + 30 * 24 * 3600 * 1000),
         questions: [oa1Q1._id],
         isPublished: true,
-        createdBy: admin?._id
+        createdBy: admin._id
       });
       await oa1Contest.save();
-      console.log('🚀 Pushed "Complete OA 1" to MongoDB Cloud!');
+      console.log('🚀 Created & Published "Complete OA 1"');
     } else {
       oa1Contest.questions = [oa1Q1._id];
       oa1Contest.isPublished = true;
       await oa1Contest.save();
+      console.log('🚀 Updated & Published "Complete OA 1"');
     }
+
   } catch (err) {
-    console.error('Error seeding contests:', err.message);
+    console.error('❌ Error during database seeding:', err.message);
   }
 };
 
@@ -84,7 +106,7 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/contes
 mongoose.connect(MONGODB_URI)
   .then(async () => {
     console.log('✅ Connected to MongoDB Database');
-    await autoSeedContests();
+    await seedDatabase();
     app.listen(PORT, () => {
       console.log(`🚀 Contest Platform Backend Server running on port ${PORT}`);
     });
