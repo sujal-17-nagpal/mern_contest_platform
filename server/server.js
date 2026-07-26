@@ -29,17 +29,47 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Contest Platform API Server is running' });
 });
 
-// Auto-seed default contests if database is empty
+// Auto-seed default contests if database is empty or update Complete OA 1
 const autoSeedContests = async () => {
   try {
-    const existingCount = await Contest.countDocuments();
-    if (existingCount > 0) return;
-
-    console.log('🌱 Database has 0 contests. Auto-seeding initial contests...');
-
     let admin = await User.findOne({ email: (process.env.ADMIN_ID || 'mystery0419').toLowerCase().trim() });
 
-    // 1. Create Demo DSA Practice Contest
+    // 1. Check or Seed "Complete OA 1"
+    let oa1Contest = await Contest.findOne({ title: 'Complete OA 1' });
+    
+    // Create / update Question 1 for Complete OA 1
+    const oa1Q1 = new Question({
+      title: 'Two-Pointer Pair Sum Bug Hunt',
+      description: 'The function below is intended to check if there exists a pair in a sorted integer array arr that sums up to target K using the two-pointer technique.\n\nNote to Candidate: There can be 0, 1, or multiple bugs in the given code snippet. Identify all bugs present and provide the corrected code snippet.',
+      type: 'bug_hunt',
+      marks: 10,
+      codeSnippet: `bool hasPairWithSum(vector<int>& arr, int K) {\n    int left = 0;\n    int right = arr.size() - 1;\n    \n    while (left < right) {\n        int currentSum = arr[left] + arr[right];\n        \n        if (currentSum == K) {\n            return true;\n        } else if (currentSum > K) {\n            left++;\n        } else {\n            right--;\n        }\n    }\n    return false;\n}`,
+      expectedBug: 'Left incremented when sum > K, and Right decremented when sum < K',
+      expectedFix: 'Swap left++ with right-- and right-- with left++'
+    });
+    await oa1Q1.save();
+
+    if (!oa1Contest) {
+      oa1Contest = new Contest({
+        title: 'Complete OA 1',
+        description: 'Official Online Assessment containing two-pointer bug hunt and advanced coding challenges.',
+        durationMinutes: 45,
+        startTime: new Date(),
+        endTime: new Date(Date.now() + 30 * 24 * 3600 * 1000),
+        questions: [oa1Q1._id],
+        isPublished: true,
+        createdBy: admin?._id
+      });
+      await oa1Contest.save();
+      console.log('🚀 Pushed "Complete OA 1" to MongoDB Cloud!');
+    }
+
+    const existingCount = await Contest.countDocuments();
+    if (existingCount >= 2) return;
+
+    console.log('🌱 Auto-seeding initial practice contests...');
+
+    // Demo DSA Practice Contest
     const q1 = new Question({
       title: 'Combined Prefix & Suffix Sum Unique Values',
       description: 'Given an array A of size N. Let pref[i] denote the prefix sum of elements from index 0 to i inclusive, and suff[i] denote the suffix sum of elements from index i to N-1 inclusive. For all valid indices 0 <= i < N, what is the total number of unique values that (pref[i] + suff[i]) can evaluate to?',
@@ -80,42 +110,8 @@ const autoSeedContests = async () => {
     });
     await demoContest.save();
 
-    // 2. Create DSA Test 1
-    const test1Q1 = new Question({
-      title: 'Vector Size vs Capacity',
-      description: 'What happens to vector size and capacity after calling vector<int> v; v.push_back(5); v.reserve(10); ?',
-      type: 'mcq',
-      marks: 10,
-      options: ['size = 1, capacity = 10', 'size = 10, capacity = 10', 'size = 1, capacity = 1', 'size = 0, capacity = 10'],
-      correctOption: 'A'
-    });
-    await test1Q1.save();
-
-    const test1Q2 = new Question({
-      title: 'Nested Loop Time Complexity',
-      description: 'Find the time complexity of a nested loop: for(int i=1; i<=n; i*=2) for(int j=1; j<=i; j++) sum++;',
-      type: 'mcq',
-      marks: 10,
-      options: ['O(N)', 'O(N log N)', 'O(N^2)', 'O(log N)'],
-      correctOption: 'A'
-    });
-    await test1Q2.save();
-
-    const test1Contest = new Contest({
-      title: 'DSA Test 1 — Array & Complexity Fundamentals',
-      description: 'Comprehensive evaluation covering vector memory, nested loop complexity, reference bug hunt, and array prefix sum coding challenge.',
-      durationMinutes: 40,
-      startTime: new Date(),
-      endTime: new Date(Date.now() + 30 * 24 * 3600 * 1000),
-      questions: [test1Q1._id, test1Q2._id],
-      isPublished: true,
-      createdBy: admin?._id
-    });
-    await test1Contest.save();
-
-    console.log('🚀 Contests auto-seeded successfully!');
   } catch (err) {
-    console.error('Error auto-seeding contests:', err.message);
+    console.error('Error seeding contests:', err.message);
   }
 };
 
