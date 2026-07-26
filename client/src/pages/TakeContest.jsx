@@ -489,15 +489,15 @@ export default function TakeContest() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                 <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.85rem' }}>
                   <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--accent2)', textTransform: 'uppercase', marginBottom: '0.2rem' }}>📥 Input Format</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{currentQ.inputFormat || 'Standard input'}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'pre-wrap' }}>{currentQ.inputFormat || 'Standard input'}</div>
                 </div>
                 <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.85rem' }}>
                   <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--accent2)', textTransform: 'uppercase', marginBottom: '0.2rem' }}>📤 Output Format</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{currentQ.outputFormat || 'Standard output'}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'pre-wrap' }}>{currentQ.outputFormat || 'Standard output'}</div>
                 </div>
                 <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.85rem' }}>
                   <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--accent2)', textTransform: 'uppercase', marginBottom: '0.2rem' }}>📐 Constraints</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: "'Fira Code', monospace" }}>{currentQ.constraints || 'Standard limits'}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontFamily: "'Fira Code', monospace", whiteSpace: 'pre-wrap' }}>{currentQ.constraints || 'Standard limits'}</div>
                 </div>
               </div>
 
@@ -509,11 +509,14 @@ export default function TakeContest() {
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     {currentQ.testCases.filter(tc => !tc.isHidden).map((tc, idx) => (
-                      <div key={idx} style={{ background: 'rgba(10,12,24,0.6)', border: '1px solid var(--border)', borderRadius: '10px', padding: '0.8rem' }}>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--green)', marginBottom: '0.3rem' }}>Sample {idx + 1}</div>
-                        <div style={{ fontSize: '0.8rem', fontFamily: "'Fira Code', monospace", color: 'var(--text-muted)' }}>
-                          <strong>Input:</strong> {tc.input}<br />
-                          <strong>Output:</strong> {tc.expectedOutput}
+                      <div key={idx} style={{ background: 'rgba(10,12,24,0.6)', border: '1px solid var(--border)', borderRadius: '10px', padding: '0.85rem' }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--green)', marginBottom: '0.4rem' }}>Sample {idx + 1}</div>
+                        <div style={{ fontSize: '0.8rem', fontFamily: "'Fira Code', monospace" }}>
+                          <div style={{ color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.72rem' }}>INPUT:</div>
+                          <pre style={{ margin: '0.2rem 0 0.6rem', padding: '0.4rem 0.6rem', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '6px', color: '#cdd6f4', fontSize: '0.8rem', whiteSpace: 'pre-wrap' }}>{tc.input}</pre>
+                          
+                          <div style={{ color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.72rem' }}>EXPECTED OUTPUT:</div>
+                          <pre style={{ margin: '0.2rem 0 0', padding: '0.4rem 0.6rem', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '6px', color: 'var(--green)', fontSize: '0.8rem', whiteSpace: 'pre-wrap' }}>{tc.expectedOutput}</pre>
                         </div>
                       </div>
                     ))}
