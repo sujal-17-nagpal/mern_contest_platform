@@ -52,7 +52,7 @@ const seedDatabase = async () => {
 
     const updatedDesc = 'The function below is intended to check if there exists a pair in a sorted integer array arr that sums up to target K using the two-pointer technique.\n\nNote to Candidate: There can be 0, 1, or multiple bugs in the given code snippet. Identify the bug(s) and explain the fix for it.';
 
-    // Force update all matching Bug Hunt questions in MongoDB Atlas
+    // 1. Question 1 for Complete OA 1 (Bug Hunt - 10 Marks)
     await Question.updateMany(
       { $or: [{ title: /Two-Pointer/i }, { type: 'bug_hunt' }] },
       { $set: { description: updatedDesc, marks: 10 } }
@@ -72,26 +72,44 @@ const seedDatabase = async () => {
       await oa1Q1.save();
     }
 
+    // 2. Question 2 for Complete OA 1 (MCQ - 5 Marks)
+    let oa1Q2 = await Question.findOne({ title: /Combined Prefix & Suffix/i });
+    if (!oa1Q2) {
+      oa1Q2 = new Question({
+        title: 'Combined Prefix & Suffix Sum Unique Values',
+        description: 'Given an array A of size N. Let pref[i] denote the prefix sum of elements from index 0 to i inclusive, and suff[i] denote the suffix sum of elements from index i to N-1 inclusive. For all valid indices 0 <= i < N, what is the total number of unique values that (pref[i] + suff[i]) can evaluate to?',
+        type: 'mcq',
+        marks: 5,
+        options: ['1', 'N', 'Need the array to determine', 'Number of unique elements'],
+        correctOption: 'D'
+      });
+      await oa1Q2.save();
+    } else {
+      oa1Q2.marks = 5;
+      await oa1Q2.save();
+    }
+
+    // 3. Update Contest "Complete OA 1" with BOTH Questions
     let oa1Contest = await Contest.findOne({ title: 'Complete OA 1' });
     if (!oa1Contest) {
       oa1Contest = new Contest({
         title: 'Complete OA 1',
-        description: 'Official Online Assessment containing two-pointer bug hunt and advanced coding challenges.',
+        description: 'Official Online Assessment containing two-pointer bug hunt and prefix/suffix array logic challenges.',
         durationMinutes: 45,
         startTime: new Date(),
         endTime: new Date(Date.now() + 30 * 24 * 3600 * 1000),
-        questions: [oa1Q1._id],
+        questions: [oa1Q1._id, oa1Q2._id],
         isPublished: true,
         createdBy: admin._id
       });
       await oa1Contest.save();
     } else {
-      oa1Contest.questions = [oa1Q1._id];
+      oa1Contest.questions = [oa1Q1._id, oa1Q2._id];
       oa1Contest.isPublished = true;
       await oa1Contest.save();
     }
 
-    console.log('✅ MongoDB Atlas Question 1 description updated successfully!');
+    console.log('🎉 "Complete OA 1" updated with Q1 (10 Marks) & Q2 (5 Marks)!');
   } catch (err) {
     console.error('❌ Error during database seeding:', err.message);
   }
