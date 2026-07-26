@@ -55,12 +55,12 @@ const seedDatabase = async () => {
       await admin.save();
     }
 
-    // 1. SEED / UPDATE "Complete OA 1"
+    // 1. SEED / UPDATE "Complete OA 1" Question 1
     let oa1Q1 = await Question.findOne({ title: 'Two-Pointer Pair Sum Bug Hunt' });
     if (!oa1Q1) {
       oa1Q1 = new Question({
         title: 'Two-Pointer Pair Sum Bug Hunt',
-        description: 'The function below is intended to check if there exists a pair in a sorted integer array arr that sums up to target K using the two-pointer technique.\n\nNote to Candidate: There can be 0, 1, or multiple bugs in the given code snippet. Identify all bugs present and provide the corrected code snippet.',
+        description: 'The function below is intended to check if there exists a pair in a sorted integer array arr that sums up to target K using the two-pointer technique.\n\nNote to Candidate: There can be 0, 1, or multiple bugs in the given code snippet. Identify the bug(s) and explain the fix for it.',
         type: 'bug_hunt',
         marks: 10,
         codeSnippet: `bool hasPairWithSum(vector<int>& arr, int K) {\n    int left = 0;\n    int right = arr.size() - 1;\n    \n    while (left < right) {\n        int currentSum = arr[left] + arr[right];\n        \n        if (currentSum == K) {\n            return true;\n        } else if (currentSum > K) {\n            left++;\n        } else {\n            right--;\n        }\n    }\n    return false;\n}`,
@@ -69,6 +69,7 @@ const seedDatabase = async () => {
       });
       await oa1Q1.save();
     } else {
+      oa1Q1.description = 'The function below is intended to check if there exists a pair in a sorted integer array arr that sums up to target K using the two-pointer technique.\n\nNote to Candidate: There can be 0, 1, or multiple bugs in the given code snippet. Identify the bug(s) and explain the fix for it.';
       oa1Q1.marks = 10;
       await oa1Q1.save();
     }
