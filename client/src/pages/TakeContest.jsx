@@ -170,12 +170,25 @@ export default function TakeContest() {
     if (!isAutoSubmit && !window.confirm('Are you sure you want to submit your contest? You can review your submission afterwards.')) return;
 
     setSubmitting(true);
-    const formatted = Object.keys(answers).map(qId => ({
-      questionId: qId,
-      selectedOption: answers[qId].selectedOption || '',
-      bugFix: answers[qId].bugFix || '',
-      code: answers[qId].code || ''
-    }));
+
+    // Read freshest answers from localStorage to prevent stale timer closure issues
+    let currentAnswers = answers;
+    const localSaved = localStorage.getItem(localStorageKey);
+    if (localSaved) {
+      try {
+        currentAnswers = JSON.parse(localSaved);
+      } catch (e) {}
+    }
+
+    const formatted = (contest?.questions || []).map(q => {
+      const qAns = currentAnswers[q._id] || {};
+      return {
+        questionId: q._id,
+        selectedOption: qAns.selectedOption || '',
+        bugFix: qAns.bugFix || '',
+        code: qAns.submittedCode || qAns.code || ''
+      };
+    });
 
     try {
       const res = await fetch('/api/submissions/submit', {
