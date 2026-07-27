@@ -49,6 +49,29 @@ router.get('/draft/:contestId', authMiddleware, async (req, res) => {
   }
 });
 
+// 2b. RESET ATTEMPT FOR RE-TAKING CONTEST
+router.post('/reset-attempt/:contestId', authMiddleware, async (req, res) => {
+  try {
+    const submission = await Submission.findOne({
+      contestId: req.params.contestId,
+      candidateId: req.user.id
+    });
+
+    if (submission) {
+      submission.answers = [];
+      submission.totalScore = 0;
+      submission.status = 'draft';
+      submission.isResultsPublished = false;
+      submission.submittedAt = null;
+      await submission.save();
+    }
+
+    res.json({ message: 'Attempt reset successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Error resetting attempt' });
+  }
+});
+
 // 3. FINAL CONTEST SUBMISSION (Puts test into 'under_review' status)
 router.post('/submit', authMiddleware, async (req, res) => {
   try {

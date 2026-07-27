@@ -216,8 +216,15 @@ export default function TakeContest() {
   };
 
   // Handler for Attempting Contest Again
-  const handleAttemptAgain = () => {
+  const handleAttemptAgain = async () => {
     if (window.confirm('Starting a new attempt will reset your current timer and draft answers. Do you want to continue?')) {
+      try {
+        await fetch(`/api/submissions/reset-attempt/${contestId}`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } catch (e) {}
+
       localStorage.removeItem(timerStartKey);
       localStorage.removeItem(localStorageKey);
       setAnswers({});
