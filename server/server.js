@@ -866,8 +866,6 @@ Expected Space Complexity: O(N)`,
       const qM1 = new Question({ title: 'Consistent Hashing Node Scaling', description: 'Which hashing algorithm minimizes key remap overhead?', type: 'mcq', marks: 5, options: ['Modulo Hashing', 'Consistent Hashing with Virtual Nodes', 'MD5 Direct Range', 'Round Robin'], correctOption: 'B' });
       const qM2 = new Question({ title: 'Caching Write Patterns', description: 'Which caching pattern writes directly to cache and DB simultaneously?', type: 'mcq', marks: 5, options: ['Cache-Aside', 'Write-Through', 'Write-Back', 'Read-Through'], correctOption: 'B' });
       const qM3 = new Question({ title: 'Longest Subarray with Target Bitwise XOR', description: 'Return length of longest subarray with XOR equal to K.', type: 'coding', marks: 20, starterCode: 'int maxSubarrayXOR(vector<int>& arr, int K) {\n}', driverCode: 'int main() {}' });
-      await qM1.save(); await qM2.save(); await qM3.save();
-      oaMedium = new Contest({ title: 'Full-Stack & Systems Engineering OA (Medium)', description: 'Medium Level OA covering System Design & DSA.', durationMinutes: 90, startTime: new Date(), endTime: new Date(Date.now() + 30*24*3600*1000), questions: [qM1._id, qM2._id, qM3._id], isPublished: true, createdBy: admin._id });
       await oaMedium.save();
     }
 
@@ -879,3 +877,19 @@ Expected Space Complexity: O(N)`,
     console.error('❌ Seeding error:', err.message);
   }
 };
+
+const PORT = process.env.PORT || 5000;
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/contest_platform';
+
+app.listen(PORT, () => {
+  console.log(`🚀 Contest Platform Backend Server running on port ${PORT}`);
+
+  mongoose.connect(MONGODB_URI)
+    .then(async () => {
+      console.log('✅ Connected to MongoDB Database');
+      await seedDatabase();
+    })
+    .catch((err) => {
+      console.error('❌ MongoDB Connection Error:', err.message);
+    });
+});
