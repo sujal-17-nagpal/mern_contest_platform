@@ -14,33 +14,44 @@ const Question = require('./models/Question');
 const User = require('./models/User');
 
 const app = express();
+
+// Middleware
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/contests', contestRoutes);
 app.use('/api/judge', judgeRoutes);
 app.use('/api/submissions', submissionRoutes);
 
+// Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Contest Platform API Server is running' });
 });
 
+// Auto-seed Admin & Contests AFTER mongoose connection is established
 const seedDatabase = async () => {
   try {
     const adminEmail = (process.env.ADMIN_ID || 'mystery0419').toLowerCase().trim();
     const adminRawPassword = process.env.ADMIN_PASSWORD || '0419';
+
     let admin = await User.findOne({ email: adminEmail });
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(adminRawPassword, salt);
+
     if (!admin) {
-      admin = new User({ name: 'Master Admin', email: adminEmail, password: passwordHash, role: 'admin' });
+      admin = new User({
+        name: 'Master Admin',
+        email: adminEmail,
+        password: passwordHash,
+        role: 'admin'
+      });
       await admin.save();
     }
 
-    console.log('🌱 Seeding Fresher SWE OA (52 Questions, 90 Minutes)...');
-    await Contest.deleteMany({});
-    await Question.deleteMany({});
+    console.log('🌱 Seeding & Preserving all Online Assessments...');
+    // Do NOT call global deleteMany to ensure all past OAs created remain visible
 
     const oaQuestions = [
       // Q1 — DBMS
@@ -694,7 +705,7 @@ const seedDatabase = async () => {
         correctOption: 'C'
       },
 
-      // Q51 — Coding Problem 1
+      // Q51 — Coding Problem 1 (Standard C++ vector signature)
       {
         title: 'Count Subarrays with Sum Equal to K',
         description: `Given an integer array nums and an integer k, return the total number of subarrays whose elements sum exactly to k.
@@ -746,7 +757,7 @@ Expected Space Complexity: O(N)`,
         ]
       },
 
-      // Q52 — Coding Problem 2
+      // Q52 — Coding Problem 2 (Standard C++ vector signature)
       {
         title: 'Longest Consecutive Sequence',
         description: `Given an unsorted array of integers nums, return the length of the longest sequence of consecutive integers. The consecutive elements do not need to be contiguous in the original array.
@@ -798,44 +809,73 @@ Expected Space Complexity: O(N)`,
 
     const savedQIds = [];
     for (const qData of oaQuestions) {
-      await Question.deleteMany({ title: qData.title });
-      const q = new Question(qData);
-      await q.save();
+      let q = await Question.findOne({ title: qData.title });
+      if (!q) {
+        q = new Question(qData);
+        await q.save();
+      }
       savedQIds.push(q._id);
     }
 
-    const oaContest = new Contest({
-      title: 'Fresher Software Engineer OA — 90 Minutes',
-      description: '90-minute Fresher-level Software Engineer Online Assessment. 50 randomly mixed MCQs (Computer Networks, DBMS, OOP, Operating Systems, System Design) + 2 Medium DSA Coding Problems. Total: 52 Questions, 130 Marks.',
-      durationMinutes: 90,
-      startTime: new Date(),
-      endTime: new Date(Date.now() + 30 * 24 * 3600 * 1000),
-      questions: savedQIds,
-      isPublished: true,
-      createdBy: admin._id
-    });
-    await oaContest.save();
+    let oaContest = await Contest.findOne({ title: 'Fresher Software Engineer OA — 90 Minutes' });
+    if (!oaContest) {
+      oaContest = new Contest({
+        title: 'Fresher Software Engineer OA — 90 Minutes',
+        description: '90-minute Fresher-level Software Engineer Online Assessment. 50 randomly mixed MCQs (Computer Networks, DBMS, OOP, Operating Systems, System Design) + 2 Medium DSA Coding Problems. Total: 52 Questions, 130 Marks.',
+        durationMinutes: 90,
+        startTime: new Date(),
+        endTime: new Date(Date.now() + 30 * 24 * 3600 * 1000),
+        questions: savedQIds,
+        isPublished: true,
+        createdBy: admin._id
+      });
+      await oaContest.save();
+    } else {
+      oaContest.questions = savedQIds;
+      oaContest.isPublished = true;
+      await oaContest.save();
+    }
 
-    console.log('🎉 "Fresher Software Engineer OA — 90 Minutes" (52 Questions, 130 Marks) published successfully!');
+    console.log('🎉 "Fresher Software Engineer OA — 90 Minutes" (52 Questions, 130 Marks) ready!');
+
+    // --- SEED COMPLETE OA 1 (If missing) ---
+    let oa1 = await Contest.findOne({ title: 'Complete OA 1' });
+    if (!oa1) {
+      const q1 = new Question({ title: 'Two-Pointer Pair Sum Bug Hunt', description: 'Find bug in 2-pointer pair sum algorithm.', type: 'bug_hunt', marks: 10, codeSnippet: 'int pairSum(vector<int>& arr) { ... }' });
+      const q2 = new Question({ title: 'Combined Prefix & Suffix Sum Unique Values', description: 'What is maximum unique values?', type: 'mcq', marks: 5, options: ['A', 'B', 'C', 'D'], correctOption: 'A' });
+      const q3 = new Question({ title: 'Count Alternating Subarrays', description: 'Count contiguous alternating subarrays.', type: 'coding', marks: 5, starterCode: 'long long countAlternatingSubarrays(vector<int>& arr) {\n}', driverCode: 'int main() {}' });
+      await q1.save(); await q2.save(); await q3.save();
+      oa1 = new Contest({ title: 'Complete OA 1', description: 'OA 1 practice set', durationMinutes: 45, startTime: new Date(), endTime: new Date(Date.now() + 30*24*3600*1000), questions: [q1._id, q2._id, q3._id], isPublished: true, createdBy: admin._id });
+      await oa1.save();
+    }
+
+    // --- SEED COMPLETE OA 2 (If missing) ---
+    let oa2 = await Contest.findOne({ title: 'Complete OA 2' });
+    if (!oa2) {
+      const q2_1 = new Question({ title: 'Maximize Alternating Sign Array Sum', description: 'Option to flip all even or odd indices.', type: 'coding', marks: 15, starterCode: 'long long maxAlternatingSum(vector<int>& arr) {\n}', driverCode: 'int main() {}' });
+      const q2_2 = new Question({ title: 'Maximize Sum with Selective Subset Sign Flip', description: 'Option to flip any subset of even or odd indices.', type: 'coding', marks: 15, starterCode: 'long long maxSelectiveSum(vector<int>& arr) {\n}', driverCode: 'int main() {}' });
+      const q2_3 = new Question({ title: 'Queue Pair Cancellation (Male-Female Matching)', description: 'Adjacent M and F cancel recursively.', type: 'coding', marks: 15, starterCode: 'int countRemainingPeople(string s) {\n}', driverCode: 'int main() {}' });
+      await q2_1.save(); await q2_2.save(); await q2_3.save();
+      oa2 = new Contest({ title: 'Complete OA 2', description: 'OA 2 practice set', durationMinutes: 60, startTime: new Date(), endTime: new Date(Date.now() + 30*24*3600*1000), questions: [q2_1._id, q2_2._id, q2_3._id], isPublished: true, createdBy: admin._id });
+      await oa2.save();
+    }
+
+    // --- SEED FULL-STACK & SYSTEMS ENGINEERING OA (MEDIUM) (If missing) ---
+    let oaMedium = await Contest.findOne({ title: 'Full-Stack & Systems Engineering OA (Medium)' });
+    if (!oaMedium) {
+      const qM1 = new Question({ title: 'Consistent Hashing Node Scaling', description: 'Which hashing algorithm minimizes key remap overhead?', type: 'mcq', marks: 5, options: ['Modulo Hashing', 'Consistent Hashing with Virtual Nodes', 'MD5 Direct Range', 'Round Robin'], correctOption: 'B' });
+      const qM2 = new Question({ title: 'Caching Write Patterns', description: 'Which caching pattern writes directly to cache and DB simultaneously?', type: 'mcq', marks: 5, options: ['Cache-Aside', 'Write-Through', 'Write-Back', 'Read-Through'], correctOption: 'B' });
+      const qM3 = new Question({ title: 'Longest Subarray with Target Bitwise XOR', description: 'Return length of longest subarray with XOR equal to K.', type: 'coding', marks: 20, starterCode: 'int maxSubarrayXOR(vector<int>& arr, int K) {\n}', driverCode: 'int main() {}' });
+      await qM1.save(); await qM2.save(); await qM3.save();
+      oaMedium = new Contest({ title: 'Full-Stack & Systems Engineering OA (Medium)', description: 'Medium Level OA covering System Design & DSA.', durationMinutes: 90, startTime: new Date(), endTime: new Date(Date.now() + 30*24*3600*1000), questions: [qM1._id, qM2._id, qM3._id], isPublished: true, createdBy: admin._id });
+      await oaMedium.save();
+    }
+
+    // Ensure all contests are set to isPublished: true
+    await Contest.updateMany({}, { isPublished: true });
+
+    console.log('✅ All Online Assessments seeded & preserved successfully!');
   } catch (err) {
     console.error('❌ Seeding error:', err.message);
   }
 };
-
-const PORT = process.env.PORT || 5000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/contest_platform';
-
-mongoose.connect(MONGODB_URI)
-  .then(async () => {
-    console.log('✅ Connected to MongoDB Database');
-    await seedDatabase();
-    app.listen(PORT, () => {
-      console.log(`🚀 Contest Platform Backend Server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error('❌ MongoDB Connection Error:', err.message);
-    app.listen(PORT, () => {
-      console.log(`🚀 Backend listening on port ${PORT}`);
-    });
-  });
