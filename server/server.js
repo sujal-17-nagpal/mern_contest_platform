@@ -163,7 +163,7 @@ const seedDatabase = async () => {
         starterCode: `int maxSubarrayXOR(vector<int>& arr, int K) {\n    // Write your code here\n    \n}`,
         driverCode: `int main() {\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    int n, k;\n    if (!(cin >> n >> k)) return 0;\n    vector<int> arr(n);\n    for(int i = 0; i < n; i++) cin >> arr[i];\n    cout << maxSubarrayXOR(arr, k);\n    return 0;\n}`,
         testCases: [
-          { input: '4 6\n4 2 2 6', expectedOutput: '4', isHidden: false },
+          { input: '4 6\n1 2 4 1', expectedOutput: '4', isHidden: false },
           { input: '5 5\n1 2 4 8 16', expectedOutput: '0', isHidden: false },
           { input: '5 0\n3 3 3 3 3', expectedOutput: '4', isHidden: true }
         ]
