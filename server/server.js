@@ -726,8 +726,8 @@ Constraints:
 -1000 <= nums[i] <= 1000
 -10^7 <= k <= 10^7
 
-Java Function Signature:
-public int subarraySum(int[] nums, int k)
+C++ Function Signature:
+int subarraySum(vector<int>& nums, int k)
 
 Expected Time Complexity: O(N)
 Expected Space Complexity: O(N)`,
@@ -736,8 +736,8 @@ Expected Space Complexity: O(N)`,
         inputFormat: 'Line 1: N K\nLine 2: N space-separated integers',
         outputFormat: 'Single integer — total number of subarrays with sum equal to K',
         constraints: '1 <= N <= 2x10^4, -1000 <= nums[i] <= 1000, -10^7 <= k <= 10^7',
-        starterCode: `int subarraySum(int* nums, int numsSize, int k) {\n    // Write your solution here\n    \n}`,
-        driverCode: `int main() {\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    int n, k;\n    if (!(cin >> n >> k)) return 0;\n    int nums[n];\n    for(int i = 0; i < n; i++) cin >> nums[i];\n    // Implement subarraySum using prefix sum + hash map\n    cout << subarraySum(nums, n, k);\n    return 0;\n}`,
+        starterCode: `int subarraySum(vector<int>& nums, int k) {\n    // Write your solution here\n    \n}`,
+        driverCode: `int main() {\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    int n, k;\n    if (!(cin >> n >> k)) return 0;\n    vector<int> nums(n);\n    for(int i = 0; i < n; i++) cin >> nums[i];\n    cout << subarraySum(nums, k);\n    return 0;\n}`,
         testCases: [
           { input: '3 2\n1 1 1', expectedOutput: '2', isHidden: false },
           { input: '3 3\n1 2 3', expectedOutput: '2', isHidden: false },
@@ -775,8 +775,8 @@ Constraints:
 0 <= nums.length <= 10^5
 -10^9 <= nums[i] <= 10^9
 
-Java Function Signature:
-public int longestConsecutive(int[] nums)
+C++ Function Signature:
+int longestConsecutive(vector<int>& nums)
 
 Expected Time Complexity: O(N)
 Expected Space Complexity: O(N)`,
@@ -785,8 +785,8 @@ Expected Space Complexity: O(N)`,
         inputFormat: 'Line 1: N\nLine 2: N space-separated integers',
         outputFormat: 'Single integer — length of the longest consecutive sequence',
         constraints: '0 <= N <= 10^5, -10^9 <= nums[i] <= 10^9',
-        starterCode: `int longestConsecutive(int* nums, int numsSize) {\n    // Write your solution here\n    \n}`,
-        driverCode: `int main() {\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    int n;\n    if (!(cin >> n)) return 0;\n    int nums[n];\n    for(int i = 0; i < n; i++) cin >> nums[i];\n    cout << longestConsecutive(nums, n);\n    return 0;\n}`,
+        starterCode: `int longestConsecutive(vector<int>& nums) {\n    // Write your solution here\n    \n}`,
+        driverCode: `int main() {\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    int n;\n    if (!(cin >> n)) return 0;\n    vector<int> nums(n);\n    for(int i = 0; i < n; i++) cin >> nums[i];\n    cout << longestConsecutive(nums);\n    return 0;\n}`,
         testCases: [
           { input: '6\n100 4 200 1 3 2', expectedOutput: '4', isHidden: false },
           { input: '10\n0 3 7 2 5 8 4 6 0 1', expectedOutput: '9', isHidden: false },
