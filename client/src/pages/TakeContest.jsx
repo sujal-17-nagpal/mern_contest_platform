@@ -536,7 +536,7 @@ export default function TakeContest() {
                           <pre style={{ margin: '0.2rem 0 0.6rem', padding: '0.4rem 0.6rem', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '6px', color: '#cdd6f4', fontSize: '0.8rem', whiteSpace: 'pre-wrap' }}>{tc.input}</pre>
                           
                           <div style={{ color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.72rem' }}>EXPECTED OUTPUT:</div>
-                          <pre style={{ margin: '0.2rem 0 0', padding: '0.4rem 0.6rem', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '6px', color: 'var(--green)', fontSize: '0.8rem', whiteSpace: 'pre-wrap' }}>{tc.expectedOutput}</pre>
+          <pre style={{ margin: '0.2rem 0 0', padding: '0.4rem 0.6rem', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '6px', color: 'var(--green)', fontSize: '0.8rem', whiteSpace: 'pre-wrap' }}>{tc.expectedOutput}</pre>
                         </div>
                       </div>
                     ))}
@@ -550,22 +550,52 @@ export default function TakeContest() {
                   <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent2)', fontFamily: "'Fira Code', monospace" }}>
                     C++ (GCC 13.2)
                   </span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Auto-Saves code locally</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <button
+                      onClick={() => updateAnswer(currentQ._id, { code: currentQ.starterCode, submittedCode: currentQ.starterCode })}
+                      style={{
+                        background: 'transparent',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        borderRadius: '6px',
+                        color: 'var(--yellow)',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        padding: '0.2rem 0.6rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.3rem'
+                      }}
+                    >
+                      <RotateCcw size={12} /> Reset Starter Code
+                    </button>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Auto-Saves code locally</span>
+                  </div>
                 </div>
 
-                <Editor
-                  height="340px"
-                  defaultLanguage="cpp"
-                  theme="vs-dark"
-                  value={currentAns.code !== undefined ? currentAns.code : currentQ.starterCode || ''}
-                  onChange={(val) => updateAnswer(currentQ._id, { code: val })}
-                  options={{
-                    fontSize: 14,
-                    minimap: { enabled: false },
-                    scrollBeyondLastLine: false,
-                    automaticLayout: true
-                  }}
-                />
+                {(() => {
+                  let activeCode = currentAns.submittedCode || currentAns.code;
+                  if (activeCode && (activeCode.includes('*nums') || activeCode.includes('numsSize'))) {
+                    activeCode = currentQ.starterCode || '';
+                  } else if (activeCode === undefined) {
+                    activeCode = currentQ.starterCode || '';
+                  }
+                  return (
+                    <Editor
+                      height="340px"
+                      defaultLanguage="cpp"
+                      theme="vs-dark"
+                      value={activeCode}
+                      onChange={(val) => updateAnswer(currentQ._id, { submittedCode: val, code: val })}
+                      options={{
+                        fontSize: 14,
+                        minimap: { enabled: false },
+                        scrollBeyondLastLine: false,
+                        padding: { top: 12, bottom: 12 }
+                      }}
+                    />
+                  );
+                })()}
               </div>
 
               {/* RUN & TEST CODE BUTTON */}

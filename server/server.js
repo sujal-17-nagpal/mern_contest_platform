@@ -39,7 +39,8 @@ const seedDatabase = async () => {
     }
 
     console.log('🌱 Seeding Fresher SWE OA (52 Questions, 90 Minutes)...');
-    await Contest.deleteMany({ title: 'Fresher Software Engineer OA — 90 Minutes' });
+    await Contest.deleteMany({});
+    await Question.deleteMany({});
 
     const oaQuestions = [
       // Q1 — DBMS
