@@ -56,72 +56,72 @@ const seedDatabase = async () => {
     await Contest.deleteMany({ title: 'Full-Stack & Systems Engineering OA (Medium)' });
 
     const mediumQuestionsData = [
-      // Q1: System Design (MCQ)
+      // Q1: MCQ (Clean Title without Topic Tag)
       {
-        title: 'System Design: Consistent Hashing Node Scaling',
+        title: 'Consistent Hashing Node Scaling',
         description: 'When scaling a distributed caching cluster (e.g. Redis cluster), which hashing algorithm minimizes key remap overhead when a new cache node is added or removed?',
         type: 'mcq',
         marks: 5,
         options: ['Modulo Hashing (key % N)', 'Consistent Hashing with Virtual Nodes', 'MD5 Direct Hash Range', 'Round Robin Routing'],
         correctOption: 'B'
       },
-      // Q2: System Design (MCQ)
+      // Q2: MCQ
       {
-        title: 'System Design: Caching Write Patterns',
+        title: 'Caching Write Patterns',
         description: 'Which caching pattern writes data directly to the cache database AND persistent database store simultaneously in a single synchronous transaction?',
         type: 'mcq',
         marks: 5,
         options: ['Cache-Aside', 'Write-Through', 'Write-Back (Write-Behind)', 'Read-Through'],
         correctOption: 'B'
       },
-      // Q3: OS Concurrency (MCQ)
+      // Q3: MCQ
       {
-        title: 'OS Concurrency: Deadlock Coffman Conditions',
+        title: 'Deadlock Coffman Conditions',
         description: 'Which condition of Coffmans 4 Deadlock Conditions is prevented when worker threads are required to request all necessary resources simultaneously at thread startup?',
         type: 'mcq',
         marks: 5,
         options: ['Mutual Exclusion', 'Hold & Wait', 'No Preemption', 'Circular Wait'],
         correctOption: 'B'
       },
-      // Q4: Computer Networks (MCQ)
+      // Q4: MCQ
       {
-        title: 'Networks: HTTP/2 Binary Framing & Multiplexing',
+        title: 'HTTP/2 Binary Framing & Multiplexing',
         description: 'What core protocol mechanism allows HTTP/2 to send multiple requests and responses concurrently over a single TCP connection without Head-of-Line (HoL) blocking at the application layer?',
         type: 'mcq',
         marks: 5,
         options: ['Domain Sharding', 'Binary Framing & Stream Multiplexing', 'Gzip Chunked Transfer', 'Keep-Alive Pipelines'],
         correctOption: 'B'
       },
-      // Q5: DBMS (MCQ)
+      // Q5: MCQ
       {
-        title: 'DBMS: B+ Tree Indexing vs Hash Indexing',
+        title: 'B+ Tree Indexing vs Hash Indexing',
         description: 'Why are B+ Tree indexes preferred over Hash Indexes in relational database management systems like PostgreSQL and MySQL InnoDB?',
         type: 'mcq',
         marks: 5,
         options: ['Hash indexes consume O(N^2) memory', 'B+ Trees support efficient range queries (<, >, BETWEEN) in O(log N) time', 'B+ Trees provide O(1) point lookups', 'Hash indexes do not support primary key constraints'],
         correctOption: 'B'
       },
-      // Q6: Operating Systems (MCQ)
+      // Q6: MCQ
       {
-        title: 'OS: Virtual Memory Page Fault Handling',
+        title: 'Virtual Memory Page Fault Handling',
         description: 'What occurs when a CPU attempts to access a virtual memory address that is valid but currently not loaded in physical RAM (page table entry present but present bit = 0)?',
         type: 'mcq',
         marks: 5,
         options: ['Segmentation Fault (SIGSEGV)', 'Page Fault Exception (handled by OS kernel)', 'Stack Overflow Error', 'Bus Exception'],
         correctOption: 'B'
       },
-      // Q7: OOPs & Design Patterns (MCQ)
+      // Q7: MCQ
       {
-        title: 'Design Patterns: Thread-Safe Singleton DCL',
+        title: 'Thread-Safe Singleton DCL',
         description: 'In multithreaded C++/Java design, what is the main architectural purpose of using "Double-Checked Locking" when instantiating a Singleton object?',
         type: 'mcq',
         marks: 5,
         options: ['To prevent garbage collection of the instance', 'To avoid expensive mutex locks once the instance is already initialized', 'To force lazy initialization to fail safely', 'To allow multiple singleton instances concurrently'],
         correctOption: 'B'
       },
-      // Q8: Distributed Systems (MCQ)
+      // Q8: MCQ
       {
-        title: 'Distributed Systems: CAP Theorem Tradeoffs',
+        title: 'CAP Theorem Tradeoffs',
         description: 'In a distributed network experiencing a network partition (P), a database system prioritizing Consistency (C) over Availability (A) will perform which action when a write request arrives at an isolated node?',
         type: 'mcq',
         marks: 5,
@@ -195,6 +195,7 @@ const seedDatabase = async () => {
         q = new Question(qData);
         await q.save();
       } else {
+        q.title = qData.title;
         q.description = qData.description;
         q.marks = qData.marks;
         if (qData.options) q.options = qData.options;
