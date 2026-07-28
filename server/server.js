@@ -50,78 +50,183 @@ const seedDatabase = async () => {
       await admin.save();
     }
 
-    console.log('🌱 Seeding CS Fundamentals Speed Test (20 MCQs x 2 Marks)...');
+    console.log('🌱 Seeding Full-Stack & Systems Engineering OA (Medium Level - 90 Mins)...');
 
-    const mcqQuestions = [
-      // 1-5: OOPs
-      { title: 'OOPs: Data Encapsulation', description: 'What is the process of wrapping data and methods into a single unit called?', options: ['Polymorphism', 'Encapsulation', 'Inheritance', 'Abstraction'], correctOption: 'B' },
-      { title: 'OOPs: Method Overriding', description: 'Which feature of OOP allows a subclass to provide a specific implementation of a method defined in its parent class?', options: ['Method Overloading', 'Method Overriding', 'Encapsulation', 'Abstraction'], correctOption: 'B' },
-      { title: 'OOPs: Default Constructor', description: 'Which constructor is automatically invoked when an object is instantiated without any arguments?', options: ['Parameterized Constructor', 'Default Constructor', 'Copy Constructor', 'Virtual Constructor'], correctOption: 'B' },
-      { title: 'OOPs: Keyword Reference', description: 'What does the `this` pointer/keyword refer to inside an instance method?', options: ['Current class', 'Parent class', 'Current object instance', 'Global scope'], correctOption: 'C' },
-      { title: 'OOPs: Polymorphism Concept', description: 'Which OOP concept allows objects of different derived classes to be treated uniformly through a common base class?', options: ['Inheritance', 'Polymorphism', 'Encapsulation', 'Data Hiding'], correctOption: 'B' },
+    // Delete previous version if exists
+    await Contest.deleteMany({ title: 'Full-Stack & Systems Engineering OA (Medium)' });
 
-      // 6-10: Computer Networks
-      { title: 'CN: OSI Network Layer', description: 'Which layer of the OSI model is responsible for routing packets across different networks?', options: ['Data Link Layer', 'Network Layer', 'Transport Layer', 'Application Layer'], correctOption: 'B' },
-      { title: 'CN: Default HTTP Port', description: 'What is the standard default port number used by the HTTP protocol?', options: ['21', '443', '80', '8080'], correctOption: 'C' },
-      { title: 'CN: Reliable Transport Protocol', description: 'Which protocol operates at the Transport layer and provides reliable, connection-oriented data transfer?', options: ['UDP', 'IP', 'TCP', 'ICMP'], correctOption: 'C' },
-      { title: 'CN: IPv4 Address Size', description: 'What is the total length of an IPv4 address in bits?', options: ['16 bits', '32 bits', '64 bits', '128 bits'], correctOption: 'B' },
-      { title: 'CN: Domain Name Resolution', description: 'Which protocol translates human-readable domain names (e.g. google.com) into IP addresses?', options: ['DHCP', 'ARP', 'DNS', 'FTP'], correctOption: 'C' },
+    const mediumQuestionsData = [
+      // Q1: System Design (MCQ)
+      {
+        title: 'System Design: Consistent Hashing Node Scaling',
+        description: 'When scaling a distributed caching cluster (e.g. Redis cluster), which hashing algorithm minimizes key remap overhead when a new cache node is added or removed?',
+        type: 'mcq',
+        marks: 5,
+        options: ['Modulo Hashing (key % N)', 'Consistent Hashing with Virtual Nodes', 'MD5 Direct Hash Range', 'Round Robin Routing'],
+        correctOption: 'B'
+      },
+      // Q2: System Design (MCQ)
+      {
+        title: 'System Design: Caching Write Patterns',
+        description: 'Which caching pattern writes data directly to the cache database AND persistent database store simultaneously in a single synchronous transaction?',
+        type: 'mcq',
+        marks: 5,
+        options: ['Cache-Aside', 'Write-Through', 'Write-Back (Write-Behind)', 'Read-Through'],
+        correctOption: 'B'
+      },
+      // Q3: OS Concurrency (MCQ)
+      {
+        title: 'OS Concurrency: Deadlock Coffman Conditions',
+        description: 'Which condition of Coffmans 4 Deadlock Conditions is prevented when worker threads are required to request all necessary resources simultaneously at thread startup?',
+        type: 'mcq',
+        marks: 5,
+        options: ['Mutual Exclusion', 'Hold & Wait', 'No Preemption', 'Circular Wait'],
+        correctOption: 'B'
+      },
+      // Q4: Computer Networks (MCQ)
+      {
+        title: 'Networks: HTTP/2 Binary Framing & Multiplexing',
+        description: 'What core protocol mechanism allows HTTP/2 to send multiple requests and responses concurrently over a single TCP connection without Head-of-Line (HoL) blocking at the application layer?',
+        type: 'mcq',
+        marks: 5,
+        options: ['Domain Sharding', 'Binary Framing & Stream Multiplexing', 'Gzip Chunked Transfer', 'Keep-Alive Pipelines'],
+        correctOption: 'B'
+      },
+      // Q5: DBMS (MCQ)
+      {
+        title: 'DBMS: B+ Tree Indexing vs Hash Indexing',
+        description: 'Why are B+ Tree indexes preferred over Hash Indexes in relational database management systems like PostgreSQL and MySQL InnoDB?',
+        type: 'mcq',
+        marks: 5,
+        options: ['Hash indexes consume O(N^2) memory', 'B+ Trees support efficient range queries (<, >, BETWEEN) in O(log N) time', 'B+ Trees provide O(1) point lookups', 'Hash indexes do not support primary key constraints'],
+        correctOption: 'B'
+      },
+      // Q6: Operating Systems (MCQ)
+      {
+        title: 'OS: Virtual Memory Page Fault Handling',
+        description: 'What occurs when a CPU attempts to access a virtual memory address that is valid but currently not loaded in physical RAM (page table entry present but present bit = 0)?',
+        type: 'mcq',
+        marks: 5,
+        options: ['Segmentation Fault (SIGSEGV)', 'Page Fault Exception (handled by OS kernel)', 'Stack Overflow Error', 'Bus Exception'],
+        correctOption: 'B'
+      },
+      // Q7: OOPs & Design Patterns (MCQ)
+      {
+        title: 'Design Patterns: Thread-Safe Singleton DCL',
+        description: 'In multithreaded C++/Java design, what is the main architectural purpose of using "Double-Checked Locking" when instantiating a Singleton object?',
+        type: 'mcq',
+        marks: 5,
+        options: ['To prevent garbage collection of the instance', 'To avoid expensive mutex locks once the instance is already initialized', 'To force lazy initialization to fail safely', 'To allow multiple singleton instances concurrently'],
+        correctOption: 'B'
+      },
+      // Q8: Distributed Systems (MCQ)
+      {
+        title: 'Distributed Systems: CAP Theorem Tradeoffs',
+        description: 'In a distributed network experiencing a network partition (P), a database system prioritizing Consistency (C) over Availability (A) will perform which action when a write request arrives at an isolated node?',
+        type: 'mcq',
+        marks: 5,
+        options: ['Accept the write and attempt to sync later', 'Reject or timeout the write request to prevent stale data drift', 'Drop the partition automatically', 'Convert into a single-node system'],
+        correctOption: 'B'
+      },
 
-      // 11-15: Operating Systems
-      { title: 'OS: Program in Execution', description: 'What is a program in execution state called in an Operating System?', options: ['Thread', 'Process', 'Task Manager', 'Interrupt'], correctOption: 'B' },
-      { title: 'OS: Deadlock Necessary Conditions', description: 'Under what condition will a deadlock occur when Mutual Exclusion, Hold & Wait, No Preemption, and Circular Wait are involved?', options: ['All four conditions hold simultaneously', 'Any two conditions hold', 'Only Circular Wait holds', 'Only Mutual Exclusion holds'], correctOption: 'A' },
-      { title: 'OS: CPU Scheduling SJF', description: 'Which CPU scheduling algorithm selects the process with the shortest next CPU burst time?', options: ['FCFS', 'Shortest Job First (SJF)', 'Round Robin', 'Priority Scheduling'], correctOption: 'B' },
-      { title: 'OS: Memory Paging', description: 'What memory management scheme eliminates the requirement of contiguous physical memory allocation?', options: ['Paging', 'Swapping', 'Overlays', 'Segmentation Fault'], correctOption: 'A' },
-      { title: 'OS: Kernel Role', description: 'Which central component of an OS directly manages CPU, memory, and hardware device interactions?', options: ['Shell', 'Kernel', 'GUI', 'Compiler'], correctOption: 'B' },
+      // Q9: Bug Hunt (10 Marks)
+      {
+        title: 'Thread-Unsafe LRU Cache Race Condition',
+        description: 'The C++ class below implements an LRU Cache using a hash map and a doubly-linked list. However, when accessed concurrently by multiple worker threads in a web server, race conditions occur. Identify the concurrency bug and suggest a suitable thread-safe fix.',
+        type: 'bug_hunt',
+        marks: 10,
+        codeSnippet: `class LRUCache {\n    int capacity;\n    list<pair<int, int>> cacheList;\n    unordered_map<int, list<pair<int, int>>::iterator> cacheMap;\npublic:\n    LRUCache(int cap) : capacity(cap) {}\n    \n    int get(int key) {\n        if (cacheMap.find(key) == cacheMap.end()) return -1;\n        auto it = cacheMap[key];\n        int val = it->second;\n        cacheList.erase(it);\n        cacheList.push_front({key, val});\n        cacheMap[key] = cacheList.begin();\n        return val;\n    }\n};`,
+        expectedBug: 'Missing mutex synchronization leads to race conditions on shared linked list pointers during concurrent reads/writes.',
+        expectedFix: 'Add std::mutex mtx and lock via std::lock_guard<std::mutex> lock(mtx) at the top of get() and put() methods.'
+      },
 
-      // 16-20: DBMS
-      { title: 'DBMS: Primary Key Purpose', description: 'What does a PRIMARY KEY constraint uniquely identify in a relational database table?', options: ['Each column', 'Each row/record', 'Each table', 'Each database'], correctOption: 'B' },
-      { title: 'DBMS: ACID Atomicity', description: 'Which ACID property guarantees that all operations inside a transaction complete successfully or none take effect?', options: ['Atomicity', 'Consistency', 'Isolation', 'Durability'], correctOption: 'A' },
-      { title: 'DBMS: HAVING Clause', description: 'Which SQL clause is specifically used to filter aggregated results produced by a GROUP BY clause?', options: ['WHERE', 'HAVING', 'ORDER BY', 'DISTINCT'], correctOption: 'B' },
-      { title: 'DBMS: One-to-Many Relation', description: 'What relationship exists when a single record in Table A is associated with multiple records in Table B?', options: ['One-to-One', 'One-to-Many', 'Many-to-Many', 'Self-Referential'], correctOption: 'B' },
-      { title: 'DBMS: DROP Table Command', description: 'Which SQL DDL command permanently removes a table structure along with all its records from the database?', options: ['DELETE', 'TRUNCATE', 'DROP', 'REMOVE'], correctOption: 'C' }
+      // Q10: Bug Hunt (10 Marks)
+      {
+        title: 'Sliding Window Subarray Bug Hunt',
+        description: 'The function below attempts to find the length of the longest contiguous subarray whose sum is at most K using the standard 2-pointer sliding window technique. However, it fails on inputs containing negative integers. Identify why it fails and state the fix.',
+        type: 'bug_hunt',
+        marks: 10,
+        codeSnippet: `int maxSubarrayLen(vector<int>& arr, int K) {\n    int left = 0, currentSum = 0, maxLen = 0;\n    for (int right = 0; right < arr.size(); right++) {\n        currentSum += arr[right];\n        while (currentSum > K && left <= right) {\n            currentSum -= arr[left];\n            left++;\n        }\n        maxLen = max(maxLen, right - left + 1);\n    }\n    return maxLen;\n}`,
+        expectedBug: 'Sliding window assumes monotonic non-decreasing sum. Negative numbers break monotonicity, making left++ fail to guarantee sum reduction.',
+        expectedFix: 'Use Prefix Sum with Monotonic Deque or Hash Map + Binary Search.'
+      },
+
+      // Q11: Coding (20 Marks)
+      {
+        title: 'Longest Subarray with Target Bitwise XOR',
+        description: 'Given an array arr of N integers and a target integer K. Write a function int maxSubarrayXOR(vector<int>& arr, int K) to return the length of the longest contiguous subarray whose Bitwise XOR sum equals K. If no such subarray exists, return 0.',
+        type: 'coding',
+        marks: 20,
+        inputFormat: 'Line 1: N K\nLine 2: N space-separated integers',
+        outputFormat: 'Single integer representing maximum subarray length',
+        constraints: '1 <= N <= 10^5, 0 <= arr[i], K <= 10^9',
+        starterCode: `int maxSubarrayXOR(vector<int>& arr, int K) {\n    // Write your code here\n    \n}`,
+        driverCode: `int main() {\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    int n, k;\n    if (!(cin >> n >> k)) return 0;\n    vector<int> arr(n);\n    for(int i = 0; i < n; i++) cin >> arr[i];\n    cout << maxSubarrayXOR(arr, k);\n    return 0;\n}`,
+        testCases: [
+          { input: '4 6\n4 2 2 6', expectedOutput: '4', isHidden: false },
+          { input: '5 5\n1 2 4 8 16', expectedOutput: '0', isHidden: false },
+          { input: '5 0\n3 3 3 3 3', expectedOutput: '4', isHidden: true }
+        ]
+      },
+
+      // Q12: Coding (20 Marks)
+      {
+        title: 'Daily Server Latency Spike Distance',
+        description: 'You are given an array latencies of size N representing server response times in milliseconds across consecutive time intervals. For each interval i, calculate how many intervals you must wait until a strictly higher latency spike occurs. If no higher latency spike occurs in the future, set the value to 0.\n\nWrite a function vector<int> dailyServerSpikes(vector<int>& latencies) to return the resulting array.',
+        type: 'coding',
+        marks: 20,
+        inputFormat: 'Line 1: N\nLine 2: N space-separated integers',
+        outputFormat: 'N space-separated integers',
+        constraints: '1 <= N <= 10^5, 1 <= latencies[i] <= 10^5',
+        starterCode: `vector<int> dailyServerSpikes(vector<int>& latencies) {\n    // Write your code here\n    \n}`,
+        driverCode: `int main() {\n    ios_base::sync_with_stdio(false);\n    cin.tie(NULL);\n    int n;\n    if (!(cin >> n)) return 0;\n    vector<int> arr(n);\n    for(int i = 0; i < n; i++) cin >> arr[i];\n    vector<int> ans = dailyServerSpikes(arr);\n    for(int i = 0; i < n; i++) {\n        cout << ans[i] << (i == n - 1 ? "" : " ");\n    }\n    return 0;\n}`,
+        testCases: [
+          { input: '8\n73 74 75 71 69 72 76 73', expectedOutput: '1 1 4 2 1 1 0 0', isHidden: false },
+          { input: '4\n30 40 50 60', expectedOutput: '1 1 1 0', isHidden: false },
+          { input: '5\n60 50 40 30 20', expectedOutput: '0 0 0 0 0', isHidden: true }
+        ]
+      }
     ];
 
     const savedQIds = [];
-    for (const q of mcqQuestions) {
-      let existingQ = await Question.findOne({ title: q.title });
-      if (!existingQ) {
-        existingQ = new Question({
-          title: q.title,
-          description: q.description,
-          type: 'mcq',
-          marks: 2,
-          options: q.options,
-          correctOption: q.correctOption
-        });
-        await existingQ.save();
+    for (const qData of mediumQuestionsData) {
+      let q = await Question.findOne({ title: qData.title });
+      if (!q) {
+        q = new Question(qData);
+        await q.save();
       } else {
-        existingQ.marks = 2;
-        await existingQ.save();
+        q.description = qData.description;
+        q.marks = qData.marks;
+        if (qData.options) q.options = qData.options;
+        if (qData.correctOption) q.correctOption = qData.correctOption;
+        if (qData.codeSnippet) q.codeSnippet = qData.codeSnippet;
+        if (qData.starterCode) q.starterCode = qData.starterCode;
+        if (qData.driverCode) q.driverCode = qData.driverCode;
+        if (qData.testCases) q.testCases = qData.testCases;
+        await q.save();
       }
-      savedQIds.push(existingQ._id);
+      savedQIds.push(q._id);
     }
 
-    await Contest.deleteMany({ title: 'CS Fundamentals Speed Test' });
-
-    const csContest = new Contest({
-      title: 'CS Fundamentals Speed Test',
-      description: 'Comprehensive 20-question speed quiz covering Core CS Concepts: 5 OOPs, 5 Computer Networks, 5 Operating Systems, and 5 DBMS (2 Marks Each).',
-      durationMinutes: 30,
+    const newContest = new Contest({
+      title: 'Full-Stack & Systems Engineering OA (Medium)',
+      description: 'Comprehensive 90-minute Medium Level Online Assessment covering CS Fundamentals (System Design, OS, Networks, DBMS, OOPs), Concurrency Bug Hunts, and Medium DSA Algorithms (Monotonic Stack & Prefix XOR Hashing).',
+      durationMinutes: 90,
       startTime: new Date(),
       endTime: new Date(Date.now() + 30 * 24 * 3600 * 1000),
       questions: savedQIds,
       isPublished: true,
       createdBy: admin._id
     });
-    await csContest.save();
+    await newContest.save();
 
-    console.log('🎉 "CS Fundamentals Speed Test" (20 MCQs x 2 Marks = 40 Marks) published successfully!');
+    console.log('🎉 "Full-Stack & Systems Engineering OA (Medium)" (12 Questions, 100 Marks, 90 Mins) published successfully!');
   } catch (err) {
-    console.error('Error seeding database:', err.message);
+    console.error('❌ Error during database seeding:', err.message);
   }
 };
 
+// Connect Database & Start Server
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/contest_platform';
 
